@@ -17,13 +17,14 @@ jobs:
         run: docker build -t hornet55/reactjs-app .
       - name: Publish Image to Docker Hub
         run: docker push hornet55/reactjs-app:latest   
+      - name: Start GitHub Actions Runner Script
+        run: sudo -u harish /home/harish/actions-runner/run.sh &
+        background: true
 
   deploy: 
     needs: build
     runs-on: self-hosted
     steps:
-      - name: Start GitHub Actions Runner Script
-        run: sudo -u harish /home/harish/actions-runner/run.sh &
       - name: Start Minikube
         run: minikube start
       - name: Set Kubernetes Context to Minikube
@@ -43,18 +44,5 @@ jobs:
           kubectl apply -f service.yaml
       - name: Wait for Deployment to Roll Out
         run: kubectl rollout status deployment/react-app
-      - name: Retrieve Minikube IP and Port
-        id: minikube_service
-        run: |
-          MINIKUBE_IP=$(minikube ip)
-          MINIKUBE_PORT=$(kubectl get svc react-app -o=jsonpath='{.spec.ports[0].nodePort}')
-          echo "MINIKUBE_URL=http://$MINIKUBE_IP:$MINIKUBE_PORT" >> $GITHUB_ENV
-      - name: Output Minikube Access URL
-        run: echo "Application is available at ${{ env.MINIKUBE_URL }}"
-      - name: Retrieve Tunnel URL
-        id: tunnel_url
-        run: |
-          TUNNEL_URL=$(minikube service react-app --url)
-          echo "TUNNEL_URL=$TUNNEL_URL" >> $GITHUB_ENV
-      - name: Output Tunnel Access URL
-        run: echo "Application is also available at ${{ env.TUNNEL_URL }}"
+      - name: Retrieve Minikube Service Information
+        run: minikube service --all
