@@ -1,4 +1,4 @@
-name: deploy on minikube
+name: deploy-on-minikube
 
 on:
   push:
@@ -26,11 +26,14 @@ jobs:
         run: minikube start
       - name: Set Kubernetes Context to Minikube
         run: kubectl config use-context minikube
-      - name: Pull Image from Docker Hub
-        run: docker pull hornet55/reactjs-app:latest
+      - name: Clear Minikube Cache
+        run: minikube cache delete hornet55/reactjs-app:latest
+      - name: Retrieve Minikube Logs
+        run: minikube logs --file=logs.txt
+      - name: Restart Minikube
+        run: minikube stop && minikube start
       - name: Tag and Load Docker Image into Minikube
-        run: |
-          minikube image load hornet55/reactjs-app:latest
+        run: minikube image load hornet55/reactjs-app:latest
       - name: Apply Kubernetes Manifests
         run: |
           kubectl apply -f deployment.yaml
