@@ -1,4 +1,4 @@
-name: deploy-on-minikube
+name: deploy on minikube
 
 on:
   push:
@@ -12,9 +12,9 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v3
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build Docker Image
-        run: docker build -t hornet55/reactjs-app:latest .
+        run: docker build -t hornet55/reactjs-app .
       - name: Publish Image to Docker Hub
         run: docker push hornet55/reactjs-app:latest   
 
@@ -22,26 +22,39 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@v3
+      - name: Start GitHub Actions Runner Script
+        run: sudo -u harish /home/harish/actions-runner/run.sh &
       - name: Start Minikube
         run: minikube start
       - name: Set Kubernetes Context to Minikube
         run: kubectl config use-context minikube
       - name: Pull Image from Docker Hub
         run: docker pull hornet55/reactjs-app:latest
-      - name: Save Docker Image as tarball
+      - name: Save Docker Image to Tarball
         run: docker save hornet55/reactjs-app:latest -o reactjs-app.tar
       - name: Load Docker Image into Minikube
         run: minikube image load reactjs-app.tar
+      - name: Delete Existing Deployment
+        run: |
+          kubectl delete deployment react-app --ignore-not-found=true
       - name: Apply Kubernetes Manifests
         run: |
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
       - name: Wait for Deployment to Roll Out
         run: kubectl rollout status deployment/react-app
-      - name: Retrieve Minikube IP
-        id: minikube_ip
-        run: echo "MINIKUBE_IP=$(minikube ip)" >> $GITHUB_ENV
+      - name: Retrieve Minikube IP and Port
+        id: minikube_service
+        run: |
+          MINIKUBE_IP=$(minikube ip)
+          MINIKUBE_PORT=$(kubectl get svc react-app -o=jsonpath='{.spec.ports[0].nodePort}')
+          echo "MINIKUBE_URL=http://$MINIKUBE_IP:$MINIKUBE_PORT" >> $GITHUB_ENV
       - name: Output Minikube Access URL
-        run: echo "Application is available at http://${{ env.MINIKUBE_IP }}:30000"
+        run: echo "Application is available at ${{ env.MINIKUBE_URL }}"
+      - name: Retrieve Tunnel URL
+        id: tunnel_url
+        run: |
+          TUNNEL_URL=$(minikube service react-app --url)
+          echo "TUNNEL_URL=$TUNNEL_URL" >> $GITHUB_ENV
+      - name: Output Tunnel Access URL
+        run: echo "Application is also available at ${{ env.TUNNEL_URL }}"
