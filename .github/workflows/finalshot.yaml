@@ -27,4 +27,4 @@ jobs:
       - name: Set Kubernetes Context to Minikube
         run: kubectl config use-context minikube
       - name: Apply Kubernetes Manifests
-        run: kubectl apply -f deployment1.yaml
+        run: kubectl apply -f deployment.yaml
