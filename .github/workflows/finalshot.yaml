@@ -32,12 +32,6 @@ jobs:
         run: docker save hornet55/reactjs-app:latest -o reactjs-app.tar
       - name: Load Docker Image into Minikube
         run: minikube image load reactjs-app.tar
-      - name: Delete Existing Deployment
-        run: |
-          kubectl delete deployment react-app --ignore-not-found=true
-      - name: Modify Replicas in Deployment
-        run: |
-          sed -i 's/replicas: 1/replicas: 5/g' deployment.yaml  # Replace replicas value
       - name: Apply Kubernetes Manifests
         run: kubectl apply -f deployment.yaml
       - name: Wait for Deployment to Roll Out
