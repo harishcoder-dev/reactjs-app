@@ -22,10 +22,12 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
+      - name: checkout 
+        uses: actions/checkout@v3
       - name: Start Minikube
         run: minikube start
       - name: Set Kubernetes Context to Minikube
         run: kubectl config use-context minikube
       - run: echo $PWD
       - name: Apply Kubernetes Manifests
-        run: kubectl apply -f deployment.yaml
+        run: kubectl apply -f deployment1.yaml
