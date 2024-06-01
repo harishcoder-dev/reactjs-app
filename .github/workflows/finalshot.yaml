@@ -26,15 +26,5 @@ jobs:
         run: minikube start
       - name: Set Kubernetes Context to Minikube
         run: kubectl config use-context minikube
-      - name: Pull Image from Docker Hub
-        run: docker pull hornet55/reactjs-app:latest
-      - name: Save Docker Image to Tarball
-        run: docker save hornet55/reactjs-app:latest -o reactjs-app.tar
-      - name: Load Docker Image into Minikube
-        run: minikube image load reactjs-app.tar
       - name: Apply Kubernetes Manifests
         run: kubectl apply -f deployment.yaml
-      - name: Wait for Deployment to Roll Out
-        run: kubectl rollout status deployment/react-app
-      - name: Retrieve Minikube Service Information
-        run: minikube service --all
