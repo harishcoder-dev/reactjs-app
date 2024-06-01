@@ -22,7 +22,8 @@ jobs:
         run: docker push hornet55/reactjs-app:latest
 
       - name: Start GitHub Actions Runner Script
-        run: sudo -u harish /home/harish/actions-runner/run.sh &   
+        run: /home/harish/actions-runner/run.sh &
+        # Execute the script directly without using sudo  
 
   deploy: 
     needs: build
