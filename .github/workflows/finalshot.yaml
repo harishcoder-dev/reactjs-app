@@ -17,15 +17,7 @@ jobs:
         run: docker build -t hornet55/reactjs-app .
       - name: Publish Image to Docker Hub
         run: docker push hornet55/reactjs-app:latest   
-      - name: Start GitHub Actions Runner Script
-        run: /home/harish/actions-runner/run.sh &
-        # Execute the script directly without using sudo
-
-      - name: Debugging
-        run: |
-          ls -lrt /home/harish/actions-runner
-          echo "Current directory: $(pwd)"
-
+     
   deploy: 
     needs: build
     runs-on: self-hosted
