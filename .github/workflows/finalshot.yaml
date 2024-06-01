@@ -26,5 +26,6 @@ jobs:
         run: minikube start
       - name: Set Kubernetes Context to Minikube
         run: kubectl config use-context minikube
+      - run: echo pwd
       - name: Apply Kubernetes Manifests
         run: kubectl apply -f deployment.yaml
