@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: react-app
+  name: react-app1
   labels:
-    app: react-app
+    app: react-app1
 spec:
   replicas: 4
   selector:
     matchLabels:
-      app: react-app
+      app: react-app1
   template:
     metadata:
       labels:
-        app: react-app
+        app: react-app1
     spec:
       containers:
-      - name: react-app
+      - name: react-app1
         image: hornet55/reactjs-app:latest
         ports:
         - containerPort: 80
